@@ -1,3 +1,4 @@
-Compile with gcc channel_hopping.c -o channel_hopping
-Run with 
+##Compile
+gcc channel_hopping.c -o channel_hopping
+##Run with 
 sudo ./channel_hopping <interface>
