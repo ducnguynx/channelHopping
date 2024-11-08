@@ -8,8 +8,8 @@
 #include <signal.h>
 #include <time.h>
 
-#define TOTAL_INTERVAL 2000000       // 1 seconds in microseconds
-#define RECALIBRATION_INTERVAL 100     // Recalibrate every 10 seconds
+#define TOTAL_INTERVAL 3000000       // 3 seconds in microseconds
+#define RECALIBRATION_INTERVAL 40     // Recalibrate every 100 seconds
 
 void change_channel(int sock, const char *iface, int channel) {
     struct iwreq wrq;
@@ -18,7 +18,6 @@ void change_channel(int sock, const char *iface, int channel) {
 
     wrq.u.freq.e = 0;
     wrq.u.freq.m = channel;
-
     if (ioctl(sock, SIOCSIWFREQ, &wrq) == -1) {
         perror("Error setting channel");
     } else {
@@ -39,7 +38,16 @@ int count_packets(const char *iface, int duration) {
     }
 
     int packet_count = 0;
-    pcap_loop(handle, 0, packet_handler, (u_char *)&packet_count);
+
+    struct pcap_pkthdr header;
+    const u_char *packet = pcap_next(handle, &header);
+
+    if (packet == NULL) {
+        printf("No packets captured on %s within %d ms\n", iface, duration);
+    } else {
+        pcap_dispatch(handle, 0, packet_handler, (u_char *)&packet_count);
+        printf("Packets captured: %d\n", packet_count);
+    }
 
     pcap_close(handle);
     return packet_count;
@@ -58,19 +66,18 @@ void channel_hopper(const char *iface) {
     int dwell_times[num_channels];
 
     while (1) {
-        // First, recalibrate by counting packets on each channel
+        // recalibrate by counting packets on each channel
         int total_packets = 0;
         for (int i = 0; i < num_channels; ++i) {
             int channel = channels[i];
             change_channel(sock, iface, channel);
             usleep(100000);  // Small delay to switch
-
-            packet_counts[i] = count_packets(iface, 500);  // Count packets for 0.5 seconds
+            packet_counts[i] = count_packets(iface, 1000);  // Count packets for 1 seconds
             total_packets += packet_counts[i];
             printf("Channel %d: %d packets\n", channel, packet_counts[i]);
         }
 
-        // Calculate dwell time for each channel based on packet count
+        // dwell time for each channel based on packet count
         if (total_packets > 0) {
             for (int i = 0; i < num_channels; ++i) {
                 dwell_times[i] = (packet_counts[i] * TOTAL_INTERVAL) / total_packets;
