@@ -8,8 +8,8 @@
 #include <signal.h>
 #include <time.h>
 
-#define TOTAL_INTERVAL 1000000       // 1 seconds in microseconds
-#define RECALIBRATION_INTERVAL 10     // Recalibrate every 10 seconds
+#define TOTAL_INTERVAL 2000000       // 1 seconds in microseconds
+#define RECALIBRATION_INTERVAL 100     // Recalibrate every 10 seconds
 
 void change_channel(int sock, const char *iface, int channel) {
     struct iwreq wrq;
