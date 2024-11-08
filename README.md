@@ -8,6 +8,7 @@ After "RECALIBRATION_INTERVAL" the system will re-calibate itself by counting th
 ## HOTFIX Nov8 9:53PM
 `pcap_loop()` wont respond when there are no traffic on the channel, fixed by using `pcap_dispatch()` as an alternative. For more details please refer to [pcap man page](https://linux.die.net/man/3/pcap_dispatch)
 ## Compile & Run
-This program using libpcap-dev package, so in order to build & run. Run `sudo apt install libpcap-dev` in your terminal
-`make all` to build
-`sudo ./adaptive_channel_hopping <interface>` to run
++ This program uses libpcap-dev package, so in order to build & run. Run `sudo apt install libpcap-dev` in your terminal
++ `make all` to build
++ `sudo ./adaptive_channel_hopping <interface>` to run
+Tested on Ubuntu 22.04 LTS w/ kernel version 6.x :shipit:
